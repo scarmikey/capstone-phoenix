@@ -31,3 +31,9 @@ charts/*.tgz
 *.swp
 .idea/
 .vscode/
+# Docker image archives
+*.tar
+
+# Node build
+node_modules/
+dist/

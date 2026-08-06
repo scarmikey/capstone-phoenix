@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: backend
+  namespace: phoenix
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: backend
+
+  template:
+    metadata:
+      labels:
+        app: backend
+
+    spec:
+      containers:
+      - name: backend
+
+        image: taskapp-backend:v1
+        imagePullPolicy: Never
+
+        ports:
+        - containerPort: 5000
+
+        env:
+        - name: DATABASE_HOST
+          value: postgres
+
+        - name: DATABASE_PORT
+          value: "5432"
+
+        - name: DATABASE_NAME
+          value: taskapp
+
+        - name: DATABASE_USER
+          value: taskapp_user
+
+        - name: DATABASE_PASSWORD
+          value: taskapp_password
+
+        - name: SECRET_KEY
+          value: dev-secret-key-change-in-production
