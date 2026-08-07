@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: taskapp-frontend:v4
+        image: taskapp-frontend:v6
 
         imagePullPolicy: Never
         ports:
