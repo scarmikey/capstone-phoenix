@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: phoenix-migration
+  namespace: phoenix
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        role: migration
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: migration
+          image: ghcr.io/ts-a-devops/taskapp-backend@sha256:7ebe1b93baef2c95098d6ce253879b4067ffbe39645a9c4fa5513aff202e4a70
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: phoenix-config
+            - secretRef:
+                name: phoenix-secret
+          command: ["alembic"]
+          args: ["-c", "/app/alembic.ini", "upgrade", "head"]

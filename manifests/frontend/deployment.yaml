@@ -6,6 +6,12 @@ metadata:
 
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
 
   selector:
     matchLabels:
@@ -17,6 +23,11 @@ spec:
         app: frontend
 
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+
       containers:
       - name: frontend
         image: ghcr.io/ts-a-devops/taskapp-frontend@sha256:dcd38b90762f14c88ec2e1a81527986d05cc926ffa8258f48aa9ecd1ed7e87f0
