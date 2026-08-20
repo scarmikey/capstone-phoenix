@@ -46,21 +46,3 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 5
 
-        env:
-        - name: DATABASE_HOST
-          value: postgres
-
-        - name: DATABASE_PORT
-          value: "5432"
-
-        - name: DATABASE_NAME
-          value: taskapp
-
-        - name: DATABASE_USER
-          value: taskapp_user
-
-        - name: DATABASE_PASSWORD
-          value: taskapp_password
-
-        - name: SECRET_KEY
-          value: dev-secret-key-change-in-production

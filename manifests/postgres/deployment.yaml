@@ -31,11 +31,9 @@ spec:
             - name: POSTGRES_USER
               value: taskapp_user
 
-            - name: POSTGRES_PASSWORD
-              value: taskapp_password
-
-          volumeMounts:
-            - name: postgres-data
+          envFrom:
+            - secretRef:
+                name: phoenix-secret
               mountPath: /var/lib/postgresql/data
 
   volumeClaimTemplates:
