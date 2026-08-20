@@ -35,7 +35,6 @@ spec:
                     app: backend
 
       securityContext:
-        runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
 
