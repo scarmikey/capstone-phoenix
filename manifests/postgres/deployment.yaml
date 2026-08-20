@@ -20,32 +20,31 @@ spec:
       containers:
         - name: postgres
           image: postgres:16
+          imagePullPolicy: IfNotPresent
 
           ports:
             - containerPort: 5432
+              protocol: TCP
 
           env:
             - name: POSTGRES_DB
               value: taskapp
 
-            - name: POSTGRES_USER
-              value: taskapp_user
-
           envFrom:
             - secretRef:
                 name: phoenix-secret
+
+          volumeMounts:
+            - name: postgres-data
               mountPath: /var/lib/postgresql/data
 
   volumeClaimTemplates:
     - metadata:
         name: postgres-data
-
       spec:
         accessModes:
           - ReadWriteOnce
-
         storageClassName: local-path
-
         resources:
           requests:
             storage: 5Gi
