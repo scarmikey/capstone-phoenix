@@ -19,8 +19,8 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: taskapp-frontend:v6
+        image: ghcr.io/ts-a-devops/taskapp-frontend@sha256:dcd38b90762f14c88ec2e1a81527986d05cc926ffa8258f48aa9ecd1ed7e87f0
 
-        imagePullPolicy: Never
+        imagePullPolicy: Always
         ports:
         - containerPort: 80

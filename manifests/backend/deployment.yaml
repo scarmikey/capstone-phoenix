@@ -21,8 +21,8 @@ spec:
       containers:
       - name: backend
 
-        image: taskapp-backend:v1
-        imagePullPolicy: Never
+        image: ghcr.io/ts-a-devops/taskapp-backend@sha256:7ebe1b93baef2c95098d6ce253879b4067ffbe39645a9c4fa5513aff202e4a70
+        imagePullPolicy: Always
 
         ports:
         - containerPort: 5000
