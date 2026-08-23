@@ -1,0 +1,7 @@
+NAME                        READY   STATUS      RESTARTS   AGE    IP           NODE               NOMINATED NODE   READINESS GATES
+backend-5cbb9c4859-7zrdq    1/1     Running     0          3d     10.42.1.23   phoenix-worker-1   <none>           <none>
+backend-5cbb9c4859-zjjv5    1/1     Running     0          3d     10.42.0.77   k3s-control        <none>           <none>
+frontend-7fff968fbb-4hs78   1/1     Running     0          3d     10.42.2.25   phoenix-worker-2   <none>           <none>
+frontend-7fff968fbb-mjgcq   1/1     Running     0          3d     10.42.0.76   k3s-control        <none>           <none>
+phoenix-migration-k58tg     0/1     Completed   0          3d1h   10.42.2.23   phoenix-worker-2   <none>           <none>
+postgres-0                  1/1     Running     0          3d3h   10.42.1.20   phoenix-worker-1   <none>           <none>

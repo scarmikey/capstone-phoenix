@@ -192,3 +192,20 @@ Start by reading the K8s lesson, then open `STRUCTURE.md`.
 
 SUBMISSION LINK:
 https://docs.google.com/forms/d/e/1FAIpQLSdp-5Zfvt431gY8m2L_MOZ7NQ-8zN2L3jvkgL7P3yP7-pd94Q/viewform?usp=header
+
+## Live Application
+
+The Phoenix TaskApp is deployed on a multi-node K3s Kubernetes cluster and is accessible here:
+
+**https://taskapp.102.37.138.23.nip.io**
+
+## Final Deployment Evidence
+
+Supporting deployment evidence is available in [`docs/EVIDENCE/`](docs/EVIDENCE/), including:
+
+- Kubernetes node readiness and workload distribution
+- PostgreSQL persistent storage
+- Services and Traefik ingress
+- HPA, PDB, and NetworkPolicy configuration
+- Database migration completion
+- Argo CD synchronization and health status

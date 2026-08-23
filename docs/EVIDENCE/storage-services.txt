@@ -1,0 +1,12 @@
+NAME                                             STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/postgres-data-postgres-0   Bound    pvc-7e639f70-633e-4dcf-affc-6350703458eb   5Gi        RWO            local-path     <unset>                 3d4h
+
+NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/backend             ClusterIP   10.43.19.75     <none>        5000/TCP   17d
+service/frontend            ClusterIP   10.43.246.129   <none>        80/TCP     17d
+service/postgres            ClusterIP   10.43.190.57    <none>        5432/TCP   17d
+service/postgres-headless   ClusterIP   None            <none>        5432/TCP   3d2h
+
+NAME                                         CLASS     HOSTS                          ADDRESS                      PORTS     AGE
+ingress.networking.k8s.io/phoenix-api        traefik   *                              10.0.1.4,10.0.1.5,10.0.1.6   80        3d10h
+ingress.networking.k8s.io/phoenix-frontend   traefik   taskapp.102.37.138.23.nip.io   10.0.1.4,10.0.1.5,10.0.1.6   80, 443   3d12h

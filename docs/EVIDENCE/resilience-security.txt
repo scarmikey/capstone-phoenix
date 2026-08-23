@@ -1,0 +1,20 @@
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/backend    2/2     2            2           17d
+deployment.apps/frontend   2/2     2            2           17d
+
+NAME                        READY   AGE
+statefulset.apps/postgres   1/1     3d4h
+
+NAME                                          REFERENCE            TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/backend   Deployment/backend   cpu: 1%/70%   2         4         2          3d6h
+
+NAME                                      MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+poddisruptionbudget.policy/backend-pdb    1               N/A               1                     3d2h
+poddisruptionbudget.policy/frontend-pdb   1               N/A               1                     3d2h
+
+NAME                                                             POD-SELECTOR   AGE
+networkpolicy.networking.k8s.io/phoenix-allow-backend            app=backend    3d2h
+networkpolicy.networking.k8s.io/phoenix-allow-postgres           app=postgres   3d2h
+networkpolicy.networking.k8s.io/phoenix-allow-traefik-backend    app=backend    2d23h
+networkpolicy.networking.k8s.io/phoenix-allow-traefik-frontend   app=frontend   2d23h
+networkpolicy.networking.k8s.io/phoenix-default-deny             <none>         3d2h
