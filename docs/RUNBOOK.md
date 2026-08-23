@@ -2,7 +2,7 @@
 
 This runbook describes how to rebuild the Phoenix TaskApp environment from infrastructure provisioning through Kubernetes, platform services, application deployment, GitOps, and day-2 operations.
 
-The intended final state is GitOps-managed: GitHub is the source of truth and Argo CD reconciles the Kubernetes application state. The capstone requires a minimum three-node cluster consisting of one control-plane node and two or more workers. :contentReference[oaicite:2]{index=2}
+The intended final state is GitOps-managed: GitHub is the source of truth and Argo CD reconciles the Kubernetes application state. The capstone requires a minimum three-node cluster consisting of one control-plane node and two or more workers.
 
 ---
 
@@ -41,15 +41,35 @@ Do not commit Terraform state, credentials, or other secrets to Git.
 
 ---
 
-## 1.2 Configure the Kubernetes nodes
+## 1.2 Configure the Kubernetes nodes with Ansible
 
 The Ansible configuration installs and configures K3s across the provisioned machines.
+
+K3s version: **v1.36.3+k3s1**
+
+Validate playbook syntax:
 
 ```bash
 cd ../ansible
 
+ansible-playbook --syntax-check -i inventory site.yml
+```
+
+Expected output:
+```
+playbook: site.yml
+```
+
+Provision the cluster:
+
+```bash
 ansible-playbook -i inventory site.yml
 ```
+
+This command runs three roles on the cluster nodes:
+- **hardening:** System preparation (swap off, base packages)
+- **k3s-server:** K3s control-plane installation
+- **k3s-agent:** K3s worker node configuration and cluster join
 
 Verify that all nodes have joined the cluster:
 
@@ -60,13 +80,13 @@ kubectl get nodes -o wide
 Expected result:
 
 ```text
-NAME               STATUS   ROLES
-k3s-control        Ready    control-plane
-phoenix-worker-1   Ready    <none>
-phoenix-worker-2   Ready    <none>
+NAME               STATUS   ROLES          AGE     VERSION
+k3s-control        Ready    control-plane  5m      v1.36.3+k3s1
+phoenix-worker-1   Ready    <none>         3m      v1.36.3+k3s1
+phoenix-worker-2   Ready    <none>         3m      v1.36.3+k3s1
 ```
 
-The capstone requires all three nodes to be Ready after a clean cluster installation. :contentReference[oaicite:3]{index=3}
+The capstone requires all three nodes to be Ready after a clean cluster installation.
 
 ---
 
@@ -91,13 +111,13 @@ kubectl get nodes -o wide
 
 The Phoenix platform requires:
 
-- K3s
-- Traefik
-- cert-manager
-- Metrics Server
-- Argo CD
+- K3s (provisioned by Ansible)
+- Traefik (bundled with K3s)
+- cert-manager (installed manually)
+- Metrics Server (installed manually)
+- Argo CD (installed manually, manages application state)
 
-The capstone specifically requires an ingress controller, cert-manager, metrics-server, and a GitOps controller. :contentReference[oaicite:4]{index=4}
+The capstone specifically requires an ingress controller, cert-manager, metrics-server, and a GitOps controller.
 
 ## 3.1 Verify Traefik
 
@@ -136,7 +156,7 @@ All cert-manager components should eventually report:
 Running
 ```
 
-The project uses cert-manager and Let's Encrypt for TLS certificate management. :contentReference[oaicite:5]{index=5}
+The project uses cert-manager and Let's Encrypt for TLS certificate management.
 
 ---
 
@@ -180,13 +200,13 @@ Optional local UI access:
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 ```
 
-Argo CD is then used to manage the application from Git. The deployment guide uses the Argo CD application manifest to bootstrap the application and then verifies that Argo reports `Healthy` and `Synced`. :contentReference[oaicite:6]{index=6}
+Argo CD is then used to manage the application from Git. The deployment guide uses the Argo CD application manifest to bootstrap the application and then verifies that Argo reports `Healthy` and `Synced`.
 
 ---
 
 # 4. GitOps Takes Over
 
-Once the platform is available, GitHub becomes the source of truth.
+Once the platform is available, GitHub becomes the source of truth for the application state.
 
 Verify the GitOps application:
 
@@ -398,7 +418,7 @@ kubectl rollout status deployment/backend -n phoenix
 kubectl get pods -n phoenix
 ```
 
-For a GitOps-managed environment, the permanent desired secret configuration must also be updated through the repository's secure secret-management mechanism so that Argo CD does not reintroduce the previous state.
+For a GitOps-managed environment, the permanent desired secret configuration must also be updated through the repository's secure secret-management mechanism so that Argo CD does not reintroduce the old secret.
 
 ---
 
@@ -412,7 +432,7 @@ Kubernetes detects that the node is unavailable and workloads running on that no
 
 The Phoenix application uses multiple frontend and backend replicas, allowing the application to remain available during a worker-node disruption.
 
-The capstone specifically requires a live failover demonstration where a worker is drained or powered off and the application remains available while Pods reschedule. :contentReference[oaicite:7]{index=7}
+The capstone specifically requires a live failover demonstration where a worker is drained or powered off and the application remains available while Pods reschedule.
 
 ### Demonstration
 
@@ -475,7 +495,7 @@ kubectl get nodes
 kubectl get pods -n phoenix -o wide
 ```
 
-The exact recovery time depends on Kubernetes scheduling, image availability, readiness probes, and application startup time. The important success criteria are that the application remains reachable and the affected workloads return to the desired replica count.
+The exact recovery time depends on Kubernetes scheduling, image availability, readiness probes, and application startup time. The important success criteria are that the application remains reachable and Pods are rescheduled to available nodes.
 
 ---
 
@@ -700,10 +720,15 @@ Before destruction, confirm that the following are committed and pushed:
 
 ```text
 README.md
+STRUCTURE.md
 docs/ARCHITECTURE.md
 docs/COST.md
 docs/RUNBOOK.md
 docs/EVIDENCE/
+infra/terraform/
+infra/ansible/
+manifests/
+gitops/
 ```
 
 Verify:
@@ -723,4 +748,4 @@ terraform destroy
 
 Confirm the Azure resources have been removed in the Azure Portal.
 
-The repository remains the source of truth and contains the Terraform, Ansible, Kubernetes manifests, GitOps configuration, documentation, and final deployment evidence required to reproduce the project.
+The repository remains the source of truth and contains the Terraform, Ansible, Kubernetes manifests, GitOps configuration, documentation, and final deployment evidence required to reproduce the Phoenix Capstone environment.
