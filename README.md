@@ -199,6 +199,10 @@ The Phoenix TaskApp is deployed on a multi-node K3s Kubernetes cluster and is ac
 
 **https://taskapp.102.37.138.23.nip.io**
 
+### Live Demo
+
+![Live Demo](live-demo1.png)
+
 ## Final Deployment Evidence
 
 Supporting deployment evidence is available in [`docs/EVIDENCE/`](docs/EVIDENCE/), including:
