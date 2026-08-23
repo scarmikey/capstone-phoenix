@@ -1,0 +1,14 @@
+---
+- name: Configure Phoenix K3s control plane
+  hosts: k3s_server
+  become: true
+  roles:
+    - hardening
+    - k3s-server
+
+- name: Configure Phoenix K3s workers
+  hosts: k3s_agents
+  become: true
+  roles:
+    - hardening
+    - k3s-agent
