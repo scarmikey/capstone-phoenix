@@ -4,7 +4,66 @@
 
 The Phoenix TaskApp is a containerized application deployed on a three-node K3s Kubernetes cluster running on Azure Virtual Machines.
 
-The platform uses GitHub as the source of truth, Argo CD for GitOps continuous reconciliation, Traefik for ingress routing, cert-manager for TLS certificate management, Kubernetes NetworkPolicies for workload isolation, and persistent storage for PostgreSQL.
+The platform uses GitHub as the source of truth, Argo CD for GitOps continuous reconciliation, Traefik for ingress routing, cert-manager for TLS certificate management, Kubernetes NetworkPolicies for workload isolation, and Ansible for cluster provisioning.
+
+---
+
+## Infrastructure & Provisioning Pipeline
+
+The complete infrastructure pipeline spans three layers:
+
+```text
+Developer Code
+     ↓
+GitHub Repository
+     ↓
+Terraform
+     ↓
+Azure Virtual Machines (3 nodes)
+     ↓
+Ansible
+     ↓
+K3s Kubernetes Cluster (v1.36.3+k3s1)
+     ↓
+Platform Components (Traefik, cert-manager, metrics-server)
+     ↓
+Argo CD
+     ↓
+Kubernetes Manifests (application state)
+     ↓
+Running Workloads (TaskApp)
+```
+
+### Layer 1: Terraform — Infrastructure Provisioning
+
+Terraform provisions the Azure infrastructure:
+- 3 Virtual Machines (1 control-plane, 2 workers)
+- Virtual network, subnet, and security groups
+- Public IPs for external access
+- Firewall rules (port 22, 80, 443 open; 6443 restricted to internal)
+
+**Output:** Three bare Linux VMs with SSH access.
+
+### Layer 2: Ansible — Cluster Configuration
+
+Ansible configures the provisioned VMs into a functional K3s cluster:
+- **hardening role:** System hardening (swap off, base packages, firewall)
+- **k3s-server role:** K3s server installation on the control-plane
+- **k3s-agent role:** K3s agent installation and node joining on workers
+
+**K3s version:** v1.36.3+k3s1 (pinned for reproducibility)
+
+**Output:** Multi-node K3s cluster with all nodes Ready.
+
+### Layer 3: Kubernetes & GitOps — Application State Management
+
+Once K3s is running:
+- Platform components (Traefik, cert-manager, metrics-server) are installed
+- Argo CD is deployed to manage application state
+- GitHub becomes the source of truth for all workloads
+- Commits → Argo syncs → running workloads
+
+**Ansible does not manage application state.** That is Argo CD's role.
 
 ---
 
@@ -101,6 +160,8 @@ The three-node architecture provides workload distribution across multiple machi
 
 Terraform is used to provision and manage the Azure infrastructure.
 
+Ansible is used to configure the VMs into a working K3s cluster.
+
 ---
 
 ## 2. GitOps Deployment Architecture
@@ -168,17 +229,17 @@ Frontend Service       Backend Service
       |                      |
       v                      v
 Frontend Pods          Backend Pods
-                             |
-                             | TCP 5432
-                             v
-                     PostgreSQL Service
-                             |
-                             v
-                    PostgreSQL StatefulSet
-                             |
-                             v
-                    PersistentVolumeClaim
-                           5Gi
+                              |
+                              | TCP 5432
+                              v
+                      PostgreSQL Service
+                              |
+                              v
+                     PostgreSQL StatefulSet
+                              |
+                              v
+                     PersistentVolumeClaim
+                            5Gi
 ```
 
 ### Routing
@@ -375,6 +436,7 @@ This provides CPU and memory visibility for application workloads.
 | Component | Technology | Purpose |
 |---|---|---|
 | Infrastructure | Terraform | Azure infrastructure provisioning |
+| Cluster Configuration | Ansible | K3s cluster provisioning and node hardening |
 | Container Orchestration | K3s | Kubernetes runtime |
 | GitOps | Argo CD | Continuous reconciliation |
 | Ingress | Traefik | HTTP/HTTPS routing |
@@ -426,7 +488,7 @@ A screenshot of the working live application is included in the root `README.md`
 
 ## 15. Architecture Summary
 
-The Phoenix Capstone combines cloud infrastructure, Kubernetes orchestration, GitOps, ingress management, TLS, persistent storage, autoscaling, network security, and observability into one production-style DevOps deployment.
+The Phoenix Capstone combines cloud infrastructure (Terraform), cluster provisioning (Ansible), Kubernetes orchestration (K3s), GitOps (Argo CD), ingress management (Traefik), TLS (cert-manager), persistent storage, autoscaling, network security, and observability into one production-style system.
 
 The overall flow is:
 
@@ -435,6 +497,12 @@ Developer
     |
     v
 GitHub
+    |
+    v
+Terraform → Azure VMs
+    |
+    v
+Ansible → K3s Cluster
     |
     v
 Argo CD
