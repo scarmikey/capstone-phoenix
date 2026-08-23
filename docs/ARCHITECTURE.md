@@ -1,8 +1,8 @@
 # Capstone Phoenix Architecture
 
-## 1. Topology
+## 1. Architecture Overview
 
-Capstone Phoenix runs on a three-node K3s Kubernetes cluster.
+The Phoenix TaskApp runs on a three-node K3s Kubernetes cluster hosted on Azure. GitHub serves as the source repository, while Argo CD provides GitOps-based deployment and reconciliation.
 
 ```text
                          GitHub
@@ -14,11 +14,11 @@ Capstone Phoenix runs on a three-node K3s Kubernetes cluster.
                            | Reconcile
                            v
                   +-------------------+
-                  |   K3s Cluster     |
+                  |    K3s Cluster    |
                   |                   |
-                  |  k3s-control      |
-                  |  10.0.1.4         |
-                  |  Control Plane    |
+                  |   k3s-control     |
+                  |     10.0.1.4      |
+                  |   Control Plane   |
                   +---------+---------+
                             |
               +-------------+-------------+
@@ -31,21 +31,50 @@ Capstone Phoenix runs on a three-node K3s Kubernetes cluster.
       +---------------+           +---------------+
               |                           |
               |                           |
-        Backend Pod                 Backend Pod
-        Frontend Pod                Frontend Pod
+        Backend Pods                Backend Pods
+        Frontend Pods               Frontend Pods
 
-                         phoenix namespace
-                               |
-                    +----------+----------+
-                    |                     |
-                    v                     v
-             Frontend Service       Backend Service
-                    |                     |
-                    |                     |
-              Frontend Pods         Backend Pods
-                                          |
-                                          v
-                                   PostgreSQL Service
-                                          |
-                                          v
-                                   PostgreSQL Pod
+
+                    PUBLIC APPLICATION FLOW
+
+                              |
+                              v
+                 taskapp.<PUBLIC-IP>.nip.io
+                              |
+                              v
+                    +-------------------+
+                    |  Traefik Ingress  |
+                    |   HTTP / HTTPS    |
+                    +---------+---------+
+                              |
+                 +------------+------------+
+                 |                         |
+                 v                         v
+        Frontend Service            Backend Service
+                 |                         |
+                 v                         v
+        Frontend Pods                Backend Pods
+                                           |
+                                           v
+                                  PostgreSQL Service
+                                           |
+                                           v
+                                  PostgreSQL StatefulSet
+                                           |
+                                           v
+                                  PostgreSQL Pod
+                                           |
+                                           v
+                              PersistentVolumeClaim
+                                      5Gi
+
+
+                    TLS / CERTIFICATE MANAGEMENT
+
+                         cert-manager
+                              |
+                              v
+                         Let's Encrypt
+                              |
+                              v
+                     Traefik HTTPS/TLS
